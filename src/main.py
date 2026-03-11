@@ -35,7 +35,7 @@ def main(page: ft.Page):
     def update_charts(processed_data):
         chart_container.controls.clear()
         
-        # 💡 팩트: Y축(기온)의 최소/최대 여백을 계산해서 차트가 찌그러지지 않게 폅니다.
+        
         temps = [d["temp"] for d in processed_data]
         min_temp = min(temps) - 5
         max_temp = max(temps) + 5
@@ -57,11 +57,10 @@ def main(page: ft.Page):
             border=ft.border.all(1, ft.Colors.WHITE_24),
             left_axis=fch.ChartAxis(title=ft.Text("기온 (°C)")),
             bottom_axis=fch.ChartAxis(),
-            min_x=0,                               # 💡 X축 시작 고정
-            max_x=len(processed_data) - 1,         # 💡 X축 끝 고정
-            min_y=min_temp,                        # 💡 Y축 최저 기온 고정
-            max_y=max_temp,                        # 💡 Y축 최고 기온 고정
-            height=250,
+            min_x=0,                               
+            max_x=len(processed_data) - 1,        
+            min_y=min_temp,                        
+            max_y=max_temp,                       
             expand=True,
             interactive=True,
         )
@@ -79,7 +78,7 @@ def main(page: ft.Page):
             border=ft.border.only(bottom=ft.BorderSide(1, ft.Colors.WHITE_24)), 
             left_axis=fch.ChartAxis(title=ft.Text("습도 (%)")),
             bottom_axis=fch.ChartAxis(),
-            max_y=100,  # 💡 습도는 최대 100%이므로 고정
+            max_y=100,  
             height=250,
             expand=True,
             interactive=True,
@@ -110,7 +109,7 @@ def main(page: ft.Page):
             page.update()
             
         except Exception as ex:
-            # 💡 수정됨: 스낵바(알림창)를 띄우는 최신 규격 적용
+           
             page.open(ft.SnackBar(content=ft.Text(f"오류 발생: {str(ex)}")))
 
     search_row = ft.Row([search_input, ft.ElevatedButton("검색", on_click=btn_click)])
