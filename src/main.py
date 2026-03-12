@@ -88,6 +88,16 @@ def main(page: ft.Page):
     page.padding = 16
     page.bgcolor = ft.Colors.BLACK
 
+    bg_gradient = ft.LinearGradient(
+        begin=ft.Alignment(-1, -1),
+        end=ft.Alignment(1, 1),
+        colors=[
+            ft.Colors.with_opacity(0.85, ft.Colors.BLUE_GREY_900),
+            ft.Colors.with_opacity(0.85, ft.Colors.BLUE_GREY_800),
+            ft.Colors.with_opacity(0.85, ft.Colors.BLUE_GREY_700),
+        ],
+    )
+
     selected_region = ft.Text("서울", size=42, weight=ft.FontWeight.W_600)
     selected_sky = ft.Text("--", size=14, color=ft.Colors.WHITE70)
     selected_temp = ft.Text("--°", size=64, weight=ft.FontWeight.BOLD)
@@ -111,6 +121,11 @@ def main(page: ft.Page):
     hourly_row = ft.Row(spacing=18, wrap=False, scroll=ft.ScrollMode.HIDDEN)
     ten_day_col = ft.Column(spacing=10)
 
+    def _toast_error(message: str):
+        page.snack_bar = ft.SnackBar(content=ft.Text(message))
+        page.snack_bar.open = True
+        page.update()
+
     def load_region(region_name: str):
         try:
             raw = weather_api.forecast(region_name)
@@ -121,6 +136,27 @@ def main(page: ft.Page):
             now = processed[0]
             temps = [x["temp"] for x in processed]
             feels = _apparent_temp_c(now["temp"], now["hum"])
+
+            # 배경: 날씨(하늘상태)에 따라 변경
+            sky = str(now.get("sky_code", "1"))
+            if sky == "1":  # 맑음
+                bg_gradient.colors = [
+                    ft.Colors.with_opacity(0.88, ft.Colors.LIGHT_BLUE_400),
+                    ft.Colors.with_opacity(0.88, ft.Colors.LIGHT_BLUE_700),
+                    ft.Colors.with_opacity(0.88, ft.Colors.BLUE_900),
+                ]
+            elif sky == "3":  # 구름많음
+                bg_gradient.colors = [
+                    ft.Colors.with_opacity(0.86, ft.Colors.BLUE_GREY_700),
+                    ft.Colors.with_opacity(0.86, ft.Colors.BLUE_GREY_800),
+                    ft.Colors.with_opacity(0.86, ft.Colors.BLUE_GREY_900),
+                ]
+            else:  # 흐림(4) 포함
+                bg_gradient.colors = [
+                    ft.Colors.with_opacity(0.88, ft.Colors.GREY_900),
+                    ft.Colors.with_opacity(0.88, ft.Colors.BLUE_GREY_900),
+                    ft.Colors.with_opacity(0.88, ft.Colors.BLACK),
+                ]
 
             selected_region.value = raw["region"]
             selected_sky.value = f"{_sky_icon(now['sky_code'])}  {_sky_label(now['sky_code'])}  ·  습도 {now['hum']}%  ·  강수확률 {now['pop']}%"
@@ -168,7 +204,7 @@ def main(page: ft.Page):
 
             page.update()
         except Exception as ex:
-            page.open(ft.SnackBar(content=ft.Text(f"오류: {ex}")))
+            _toast_error(f"오류: {ex}")
 
     def on_search_submit(e: ft.ControlEvent):
         v = (search.value or "").strip()
@@ -313,15 +349,7 @@ def main(page: ft.Page):
         expand=True,
         border_radius=26,
         padding=18,
-        gradient=ft.LinearGradient(
-            begin=ft.Alignment(-1, -1),
-            end=ft.Alignment(1, 1),
-            colors=[
-                ft.Colors.with_opacity(0.85, ft.Colors.BLUE_GREY_900),
-                ft.Colors.with_opacity(0.85, ft.Colors.BLUE_GREY_800),
-                ft.Colors.with_opacity(0.85, ft.Colors.BLUE_GREY_700),
-            ],
-        ),
+        gradient=bg_gradient,
         content=dashboard,
     )
 
