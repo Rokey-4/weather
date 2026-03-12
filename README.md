@@ -1,4 +1,6 @@
 # 날씨 대시보드 (Flet)
+<img width="1588" height="1238" alt="image" src="https://github.com/user-attachments/assets/d0a7ecd9-243e-410b-9292-7925a55b2617" />
+
 
 기상청 단기예보 API를 호출해 **지역별 현재/시간대별 예보**를 보여주는 Flet 데스크톱 앱입니다.
 
